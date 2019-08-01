@@ -1,10 +1,6 @@
 ---
 title: "PA1_template"
-output: 
-  html_document:
-    keep_md: true
-    self_contained: no 
-    figure_keep: TRUE
+output: html_document
 ---
 
 
@@ -27,7 +23,7 @@ a <- ggplot(df2) + geom_histogram(aes(x=date, weight=total_step),bins = 61) + sc
 a
 ```
 
-![](PA1_template_files/figure-html/Q1-1.png)<!-- -->
+![plot of chunk Q1](figure/Q1-1.png)
 
 ```r
 #Compute mean and median
@@ -181,7 +177,7 @@ b <- ggplot(data = df4, aes(x=interval, y=mean_step2))+geom_line()+ylab("mean_st
 b
 ```
 
-![](PA1_template_files/figure-html/Q2-1.png)<!-- -->
+![plot of chunk Q2](figure/Q2-1.png)
 
 ```r
 df4 <- df4[order(mean_step2, decreasing = TRUE),]
@@ -213,7 +209,7 @@ c <- ggplot(df7) + geom_histogram(aes(x=date, weight=total_step),bins = 61) + sc
 c
 ```
 
-![](PA1_template_files/figure-html/Q3-1.png)<!-- -->
+![plot of chunk Q3](figure/Q3-1.png)
 
 ```r
 #Compute mean and median
@@ -375,7 +371,7 @@ d <- ggplot(data = df8, aes(x=interval, y=mean_step3))+geom_line()+ylab("mean_st
 d
 ```
 
-![](PA1_template_files/figure-html/Q4-1.png)<!-- -->
+![plot of chunk Q4](figure/Q4-1.png)
 
 
 
