@@ -1,25 +1,111 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
+title: "PA1_template"
 output: 
   html_document:
     keep_md: true
+    self_contained: no 
+    figure_keep: TRUE
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(pander)
+library(dplyr)
+```
 
-## Loading and preprocessing the data
+```{r data_import}
+#Read in the data directly 
+df <- read.csv(unz("/Users/Ellie/Documents/Personal_development/Data_sciences_training/Coursera_data_science/github/RepData_PeerAssessment1/activity.zip","activity.csv"))
+```
+
+```{r Q1}
+df <- setDT(df)
+#Calculate the total steps
+df1 <- df[, total_step := sum(steps), by=date]
+df2 <- unique(df1[, list(date, total_step)])
+df2$date <- as.Date(df2$date)
+
+a <- ggplot(df2) + geom_histogram(aes(x=date, weight=total_step),bins = 61) + scale_x_date()
+a
+
+#Compute mean and median
+df1 <- df1[, mean_step := mean(steps,na.rm = TRUE), by=date]
+#Data.table does not work for median somehow, use dplyr
+df1 <- as_tibble(df1)
+df1<- group_by(df1, date)
+df1<- setDT(mutate(df1, median_step = median(steps,na.rm = TRUE)))
+
+df3 <- unique(df1[, list(date, mean_step, median_step)])
+#Report as a table
+pander(df3,caption = "Mean and median of steps per each day")
+
+```
+
+```{r Q2}
+df1<- group_by(df1, interval)
+df1<- setDT(mutate(df1, mean_step2 = mean(steps,na.rm = TRUE)))
+df4 <- unique(df1[, list(interval, mean_step2)])
+
+b <- ggplot(data = df4, aes(x=interval, y=mean_step2))+geom_line()+ylab("mean_steps")
+b
+
+df4 <- df4[order(mean_step2, decreasing = TRUE),]
+pander(df4[1,], caption = "Interval with the max value of mean steps")
+```
+
+```{r Q3}
+#Impute 0 with mean value of that interval because there are all NAs on some dates
+df5 <- df1[, replace_steps := ifelse(is.na(steps), mean_step2, steps)]
+df5 <- df5[, list(date, interval, replace_steps)]
+
+#For the new dataset
+#Calculate the total steps
+df6 <- df5[, total_step := sum(replace_steps), by=date]
+df7 <- unique(df6[, list(date, total_step)])
+df7$date <- as.Date(df7$date)
+
+c <- ggplot(df7) + geom_histogram(aes(x=date, weight=total_step),bins = 61) + scale_x_date()
+c
+
+#Compute mean and median
+df6 <- df6[, mean_step := mean(replace_steps,na.rm = TRUE), by=date]
+#Data.table does not work for median somehow, use dplyr
+df6 <- as_tibble(df6)
+df6<- group_by(df6, date)
+df6<- setDT(mutate(df6, median_step = median(replace_steps,na.rm = TRUE)))
+
+df7 <- unique(df6[, list(date, mean_step, median_step)])
+#Report as a table
+pander(df7,caption = "Mean and median of steps per each day (imputed data)")
+
+```
+
+- There are `r sum(is.na(df))` NAs in the original dataset. 
+
+- Imputing zero did not change the mean, median or total daily steps dramatically. 
+
+```{r Q4}
+df5$date <- as.Date(df5$date)
+df5 <- df5[, wd := weekdays(date)]
+df5 <- df5[,days := ifelse(wd %in% c("Sunday","Saturday"), "weekend", "weekday")]
+
+df5<- group_by(df5, interval,days)
+df5<- setDT(mutate(df5, mean_step3 = mean(replace_steps,na.rm = TRUE)))
+df8 <- unique(df5[, list(interval, mean_step3, days)])
+
+d <- ggplot(data = df8, aes(x=interval, y=mean_step3))+geom_line()+ylab("mean_steps")+facet_grid(days ~.)
+d
+
+
+```
 
 
 
-## What is mean total number of steps taken per day?
 
 
 
-## What is the average daily activity pattern?
 
 
 
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
